@@ -23,3 +23,4 @@ Some next releases are presented here.
 
 - increase the user experience (homogenize names, correct english)
 - correct the functions P_is_inside() because if the coordinate y = the coordinate of the vertex, the point is considered outside (even  if it is not the case)
+- How to conserve the variable etai after the move (interpolation method and not rebuild....)

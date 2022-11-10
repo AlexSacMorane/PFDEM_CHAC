@@ -10,13 +10,14 @@ This is the test file to verify if the code is running well.
 #Librairy
 #-------------------------------------------------------------------------------
 
-import unittest
 from pathlib import Path
+from datetime import datetime
+import numpy as np
+import matplotlib.pyplot as plt
+import unittest
 import os
 import shutil
 import math
-import numpy as np
-import matplotlib.pyplot as plt
 
 #own functions and classes
 import User
@@ -31,6 +32,18 @@ class TestExample(unittest.TestCase):
 
     def test_example(self):
         self.assertTrue(True)
+
+#-------------------------------------------------------------------------------
+
+class TestReport(unittest.TestCase):
+#test functions from Report.py
+
+    def test_Report(self):
+        #try to create a report.txt file
+        simulation_report = Report.Report('Report',datetime.now())
+        #check if the .txt has been created
+        self.assertTrue(Path('Report.txt').is_file(),"The file Report.txt has not been created by the function Report.Report()!")
+        os.remove('Report.txt')
 
 #-------------------------------------------------------------------------------
 

@@ -28,12 +28,12 @@ def All_parameters():
     #Sample parameters
 
     #spatial discretisation
-    x_min = -27
-    x_max = 27
+    x_min = -23
+    x_max = 23
     nx = 180
     x_L = np.linspace(x_min,x_max,nx)
-    y_min = -17
-    y_max = 17
+    y_min = -13
+    y_max = 13
     ny = 100
     y_L = np.linspace(y_min,y_max,ny)
 
@@ -52,13 +52,13 @@ def All_parameters():
     template = 'PF_CH_AC' #template of the name of the simulation
     np_proc = 4 #number of processor used
 
-    n_t_PFDEM = 1 #number of cycle PF-DEM
+    n_t_PFDEM = 2 #number of cycle PF-DEM
 
     #Time step for phase field
     dt_PF = 0.015
     n_t_PF = 65
 
-    cut_etai = 0.1 #????
+    cut_etai = 0.5 #????
 
     SaveData = True #Save data or not
     foldername = 'Data_2G_Box_CH_AC_EL' #name of the folder where data are saved

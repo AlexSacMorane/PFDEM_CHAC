@@ -10,17 +10,18 @@ This is the main file.
 #Librairy
 #-------------------------------------------------------------------------------
 
+from pathlib import Path
+from datetime import datetime
+import numpy as np
 import os
 import shutil
-from pathlib import Path
-import numpy as np
 import math
-import pickle
 
 #Own functions and classes
 import Grain
 import Owntools
 import User
+import Report
 
 #-------------------------------------------------------------------------------
 #Plan simulation
@@ -43,6 +44,10 @@ os.mkdir('Debug')
 #Create a simulation
 #-------------------------------------------------------------------------------
 
+#create a simulation report
+simulation_report = Report.Report('Debug/Report',datetime.now())
+simulation_report.tic_tempo(datetime.now())
+
 #general parameters
 dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
 if not Path('../'+dict_algorithm['foldername']).exists():
@@ -54,6 +59,8 @@ User.Add_2grains(dict_sample,dict_material)
 #plot
 Owntools.Plot_config(dict_sample)
 
+simulation_report.tac_tempo(datetime.now(),'Initialisation')
+
 #-------------------------------------------------------------------------------
 #main
 #-------------------------------------------------------------------------------
@@ -61,7 +68,9 @@ Owntools.Plot_config(dict_sample)
 dict_algorithm['i_PFDEM'] = 0
 while not User.Criteria_StopSimulation(dict_algorithm):
 
+    simulation_report.tic_tempo(datetime.now())
     dict_algorithm['i_PFDEM'] = dict_algorithm['i_PFDEM'] + 1
+    simulation_report.write_and_print(f"\nITERATION {dict_algorithm['i_PFDEM']} / {dict_algorithm['n_t_PFDEM']}\n\n",f"\nITERATION {dict_algorithm['i_PFDEM']} / {dict_algorithm['n_t_PFDEM']}\n")
 
     #move grain
     Grain.Compute_overlap_2_grains(dict_sample)
@@ -77,8 +86,15 @@ while not User.Criteria_StopSimulation(dict_algorithm):
 
     #create i
     Owntools.Create_i(dict_algorithm,dict_sample,dict_material)
+
+    simulation_report.tac_tempo(datetime.now(),f"Iteration {dict_algorithm['i_PFDEM']}: preparation of the pf simulation")
+    simulation_report.tic_tempo(datetime.now())
+
     #run
     os.system('mpiexec -n '+str(dict_algorithm['np_proc'])+' ~/projects/moose/modules/combined/combined-opt -i '+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'.i')
+
+    simulation_report.tac_tempo(datetime.now(),f"Iteration {dict_algorithm['i_PFDEM']}: pf simulation")
+    simulation_report.tic_tempo(datetime.now())
 
     #sorting files
     j_str = Owntools.Sort_Files(dict_algorithm)
@@ -90,8 +106,10 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     #plot
     Owntools.Plot_config(dict_sample)
 
+    simulation_report.tac_tempo(datetime.now(),f"Iteration {dict_algorithm['i_PFDEM']}: from pf to dem")
+
 #-------------------------------------------------------------------------------
-#Main
+#postprocess
 #-------------------------------------------------------------------------------
 
-raise ValueError('Stop !')
+simulation_report.end(datetime.now())

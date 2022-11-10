@@ -108,6 +108,7 @@ def Plot_config(dict_sample):
     plt.figure(1,figsize=(16,9))
     for i in range(len(dict_sample['L_g'])):
         plt.plot(dict_sample['L_g'][i].l_border_x,dict_sample['L_g'][i].l_border_y)
+    plt.xlim(min(dict_sample['x_L']),max(dict_sample['x_L']))
     plt.axis('equal')
     plt.savefig(name)
     plt.close(1)

@@ -28,12 +28,12 @@ def All_parameters():
     #Sample parameters
 
     #spatial discretisation
-    x_min = -2.3
-    x_max = 2.3
+    x_min = -23
+    x_max = 23
     nx = 180
     x_L = np.linspace(x_min,x_max,nx)
-    y_min = -1.3
-    y_max = 1.3
+    y_min = -13
+    y_max = 13
     ny = 100
     y_L = np.linspace(y_min,y_max,ny)
 
@@ -55,8 +55,8 @@ def All_parameters():
     n_t_PFDEM = 2 #number of cycle PF-DEM
 
     #Time step for phase field
-    dt_PF = 0.015
-    n_t_PF = 65
+    dt_PF = 0.008
+    n_t_PF = 30
 
     cut_etai = 0.5 #????
 
@@ -86,7 +86,7 @@ def All_parameters():
     #---------------------------------------------------------------------------
     #External sollicitation parameters
 
-    overlap_target = 0.1
+    overlap_target = 1
 
     dict_sollicitation = {
     'overlap_target' : overlap_target
@@ -119,12 +119,12 @@ def All_parameters():
 def Add_2grains(dict_sample,dict_material):
 
     #grain 1
-    radius = 1
+    radius = 10
     center = np.array([np.mean(dict_sample['x_L'])-radius,np.mean(dict_sample['y_L'])])
     grain_1 = Grain.Grain(1,radius,center,dict_material,dict_sample)
 
     #grain 2
-    radius = 1
+    radius = 10
     center = np.array([np.mean(dict_sample['x_L'])+radius,np.mean(dict_sample['y_L'])])
     grain_2 = Grain.Grain(2,radius,center,dict_material,dict_sample)
 

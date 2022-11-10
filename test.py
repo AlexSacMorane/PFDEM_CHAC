@@ -23,6 +23,7 @@ import math
 import User
 import Owntools
 import Grain
+import Report
 
 #-------------------------------------------------------------------------------
 #Test
@@ -184,12 +185,12 @@ class TestGrain(unittest.TestCase):
         #Acquire data
         dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
         #Create one grain
-        grain = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        grain = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         #try to do the geometric study of the grain
         grain.geometric_study(dict_sample)
         #define margine of the surface and the center (the study is done with a Monte Carlo method, some noise can be introduced)
-        margin_center = 0.02*1 #1 is the radius see line upper
-        margin_surface = 0.02*math.pi*1**2 #1 is the radius see line upper
+        margin_center = 0.03*10 #10 is the radius see line upper
+        margin_surface = 0.03*math.pi*10**2 #10 is the radius see line upper
         #check if the center computed is near the analytical one
         self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])])-grain.center)<margin_center,'The estimation of the center position seems false (because of the Monte Carlo Method try to rerun or increase the margin)...')
         #check if the surface computed is near the analytical one
@@ -201,10 +202,10 @@ class TestGrain(unittest.TestCase):
         #Acquire data
         dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
         #Create one grain
-        grain = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        grain = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         #check if the function works well in different configurations
-        self.assertFalse(grain.P_is_inside(np.array([np.mean(dict_sample['x_L'])+1.1,np.mean(dict_sample['y_L'])])),'An outside point is detected as inside by Grain.P_is_inside()...')
-        self.assertTrue(grain.P_is_inside(np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])+0.1])),'An inside point is detected as outside by Grain.P_is_inside()...')
+        self.assertFalse(grain.P_is_inside(np.array([np.mean(dict_sample['x_L'])+11,np.mean(dict_sample['y_L'])])),'An outside point is detected as inside by Grain.P_is_inside()...')
+        self.assertTrue(grain.P_is_inside(np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])+1])),'An inside point is detected as outside by Grain.P_is_inside()...')
 
     #---------------------------------------------------------------------------
 
@@ -212,17 +213,17 @@ class TestGrain(unittest.TestCase):
         #Acquire data
         dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
         #Create one grain
-        grain = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        grain = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         #try to move the grain
-        grain.move_grain(np.array([0.5,0]),dict_material,dict_sample)
+        grain.move_grain(np.array([5,0]),dict_material,dict_sample)
         #check if the center computed is near the analytical one
-        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+0.5,np.mean(dict_sample['y_L'])])-grain.center)==0,'The grain has not been well moved!')
+        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])])-grain.center)==0,'The grain has not been well moved!')
         #Study the geometric of the grain
         grain.geometric_study(dict_sample)
         #define margine of the new center (the study is done with a Monte Carlo method, some noise can be introduced)
-        margin_center = 0.02*1 #1 is the radius see line upper
+        margin_center = 0.03*10 #10 is the radius see line upper
         #check if the center computed is near the analytical one
-        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+0.5,np.mean(dict_sample['y_L'])])-grain.center)<margin_center,'The displacement of the grain seems false after the etai_M rebuild (because of the Monte Carlo Method try to rerun or increase the margin)...')
+        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])])-grain.center)<margin_center,'The displacement of the grain seems false after the etai_M rebuild (because of the Monte Carlo Method try to rerun or increase the margin)...')
 
     #---------------------------------------------------------------------------
 
@@ -231,19 +232,19 @@ class TestGrain(unittest.TestCase):
         dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
         dict_sample['grain_discretisation'] = 20
         #Create two grain
-        g1 = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L'])-0.5,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
-        g2 = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L'])+0.5,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        g1 = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L'])-5,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        g2 = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         dict_sample['L_g'] = [g1,g2]
         #Check if there is an overlap between those grains
         Grain.Compute_overlap_2_grains(dict_sample)
-        self.assertTrue(dict_sample['overlap']==1,'The overlap between two grains in contact is not well computed!')
+        self.assertTrue(dict_sample['overlap']==10,'The overlap between two grains in contact is not well computed!')
         #Create two grain
-        g1 = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L'])-1.1,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
-        g2 = Grain.Grain(0,1,np.array([np.mean(dict_sample['x_L'])+1.1,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        g1 = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L'])-11,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        g2 = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L'])+11,np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         dict_sample['L_g'] = [g1,g2]
         #Check if there is not an overlap between those grains
         Grain.Compute_overlap_2_grains(dict_sample)
-        self.assertTrue(dict_sample['overlap']==-0.2,'The overlap between two grains not in contact is not well computed!')
+        self.assertTrue(dict_sample['overlap']==-2,'The overlap between two grains not in contact is not well computed!')
 
     #---------------------------------------------------------------------------
 

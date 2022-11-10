@@ -37,9 +37,13 @@ def All_parameters():
     ny = 100
     y_L = np.linspace(y_min,y_max,ny)
 
+    #approximatively the number of vertices for one grain during DEM simulation
+    grain_discretisation = 20
+
     dict_sample = {
     'x_L' : x_L,
-    'y_L' : y_L
+    'y_L' : y_L,
+    'grain_discretisation' : grain_discretisation
     }
 
     #---------------------------------------------------------------------------
@@ -48,9 +52,13 @@ def All_parameters():
     template = 'PF_CH_AC' #template of the name of the simulation
     np_proc = 4 #number of processor used
 
-    n_t_PFDEM = 3 #number of cycle PF-DEM
+    n_t_PFDEM = 1 #number of cycle PF-DEM
 
-    cut_etai = 0.01 #????
+    #Time step for phase field
+    dt_PF = 0.01
+    n_t_PF = 100
+
+    cut_etai = 0.1 #????
 
     SaveData = True #Save data or not
     foldername = 'Data_2G_Box_CH_AC_EL' #name of the folder where data are saved
@@ -68,6 +76,8 @@ def All_parameters():
     'np_proc' : np_proc,
     'SaveData' : SaveData,
     'namefile' : namefile,
+    'dt_PF' : dt_PF,
+    'n_t_PF' : n_t_PF,
     'foldername' : foldername,
     'n_t_PFDEM' : n_t_PFDEM,
     'cut_etai' : cut_etai
@@ -76,8 +86,10 @@ def All_parameters():
     #---------------------------------------------------------------------------
     #External sollicitation parameters
 
-    dict_sollicitation = {
+    overlap_target = 1
 
+    dict_sollicitation = {
+    'overlap_target' : overlap_target
     }
 
     #---------------------------------------------------------------------------
@@ -109,12 +121,12 @@ def Add_2grains(dict_sample,dict_material,dict_sollicitation):
     #grain 1
     radius = 10
     center = np.array([np.mean(dict_sample['x_L'])-radius,np.mean(dict_sample['y_L'])])
-    grain_1 = Grain.Grain(1,radius,center,dict_material['w'],dict_sample['x_L'],dict_sample['y_L'])
+    grain_1 = Grain.Grain(1,radius,center,dict_material,dict_sample)
 
     #grain 2
     radius = 10
     center = np.array([np.mean(dict_sample['x_L'])+radius,np.mean(dict_sample['y_L'])])
-    grain_2 = Grain.Grain(1,radius,center,dict_material['w'],dict_sample['x_L'],dict_sample['y_L'])
+    grain_2 = Grain.Grain(1,radius,center,dict_material,dict_sample)
 
     #add element in dict
     dict_sample['L_g'] = [grain_1, grain_2]

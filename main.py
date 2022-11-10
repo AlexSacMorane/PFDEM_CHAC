@@ -14,7 +14,6 @@ import shutil
 from pathlib import Path
 import numpy as np
 import math
-from PFtoDEM_Multi import PFtoDEM_Multi
 import pickle
 
 #Own functions and classes
@@ -29,16 +28,16 @@ import User
 
 if Path('Input').exists():
     shutil.rmtree('Input')
+os.mkdir('Input')
 if Path('Output').exists():
     shutil.rmtree('Output')
+os.mkdir('Output')
 if Path('Data').exists():
     shutil.rmtree('Data')
-if Path('PostProcess').exists():
-    shutil.rmtree('PostProcess')
-
-os.mkdir('Input')
-os.mkdir('Output')
 os.mkdir('Data')
+if Path('Debug').exists():
+    shutil.rmtree('Debug')
+os.mkdir('Debug')
 
 #-------------------------------------------------------------------------------
 #Create a simulation
@@ -50,6 +49,9 @@ dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parame
 #create the two grains
 User.Add_2grains(dict_sample,dict_material,dict_sollicitation)
 
+#plot
+Owntools.Plot_config(dict_sample)
+
 #-------------------------------------------------------------------------------
 #main
 #-------------------------------------------------------------------------------
@@ -60,7 +62,13 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     dict_algorithm['i_PFDEM'] = dict_algorithm['i_PFDEM'] + 1
 
     #move grain
-    #write eta, c
+    Grain.Compute_overlap_2_grains(dict_sample)
+    Grain.Apply_overlap_target(dict_material,dict_sample,dict_sollicitation)
+
+    #plot
+    Owntools.Plot_config(dict_sample)
+
+    #write data
     PF.Write_eta_txt(dict_algorithm, dict_sample)
     PF.Write_c_txt(dict_algorithm, dict_sample)
     PF.Write_ep_txt(dict_algorithm, dict_sample)
@@ -71,9 +79,14 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     os.system('mpiexec -n '+str(dict_algorithm['np_proc'])+' ~/projects/moose/modules/combined/combined-opt -i '+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'.i')
 
     #sorting files
-    j_str = Sort_Files(namefile,np_proc)
+    j_str = Owntools.Sort_Files(dict_algorithm)
 
     raise ValueError('Stop !')
+
+    #geometric_study
+
+    #plot
+    Owntools.Plot_config(dict_sample)
 
 
 #-------------------------------------------------------------------------------

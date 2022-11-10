@@ -25,12 +25,20 @@
       function = c_txt
     [../]
   [../]
-  [./eta]
+  [./eta1]
     order = FIRST
     family = LAGRANGE
     [./InitialCondition]
       type = FunctionIC
-      function = eta_txt
+      function = eta1_txt
+    [../]
+  [../]
+  [./eta2]
+    order = FIRST
+    family = LAGRANGE
+    [./InitialCondition]
+      type = FunctionIC
+      function = eta2_txt
     [../]
   [../]
 []
@@ -47,7 +55,7 @@
     type = CahnHilliard
     variable = c
     f_name = F_total
-    args = 'eta'
+    args = 'eta1 eta2'
   [../]
   [./time]
     type = TimeDerivative
@@ -59,18 +67,39 @@
   #
   [./deta1dt]
     type = TimeDerivative
-    variable = eta
+    variable = eta1
   [../]
   [./ACBulk1]
     type = AllenCahn
-    variable = eta
-    args = 'c'
+    variable = eta1
+    args = 'c eta2'
     mob_name = L
     f_name = F_total
   [../]
   [./ACInterface1]
     type = ACInterface
-    variable = eta
+    variable = eta1
+    mob_name = L
+    kappa_name = 'kappa_eta'
+  [../]
+
+  #
+  # Order parameter eta2
+  #
+  [./deta2dt]
+    type = TimeDerivative
+    variable = eta2
+  [../]
+  [./ACBulk2]
+    type = AllenCahn
+    variable = eta2
+    args = 'c eta1'
+    mob_name = L
+    f_name = F_total
+  [../]
+  [./ACInterface2]
+    type = ACInterface
+    variable = eta2
     mob_name = L
     kappa_name = 'kappa_eta'
   [../]
@@ -92,10 +121,10 @@
   type = DerivativeParsedMaterial
   block = 0
   f_name = F
-  args = 'eta c'
+  args = 'eta1 eta2 c'
   constant_names = 'cross_term h'
   constant_expressions = '1
-  function = 'h*((-1-eta)^2*eta^2*(1-eta)^2+c^2*(1-c)^2+cross_term*(((-1-eta)^2*(1-eta)^2)*c^2+(eta^2)*(1-c)^2))'
+  function = 'h*((-1-eta1)^2*eta1^2*(1-eta1)^2+(-1-eta2)^2*eta2^2*(1-eta2)^2+c^2*(1-c)^2+cross_term*(((-1-eta1)^2*(1-eta1)^2)*c^2+(eta1^2)*(1-c)^2+((-1-eta2)^2*(1-eta2)^2)*c^2+(eta2^2)*(1-c)^2))'
   enable_jit = true
   derivative_order = 2
   [../]
@@ -103,18 +132,22 @@
     type = DerivativeParsedMaterial
     block = 0
     f_name = F_total
-    args = 'eta c'
-    material_property_names = 'ep F(eta,c)'
-    function = 'F+ep*3*eta^2-ep*2*eta^3'
+    args = 'eta1 eta2 c'
+    material_property_names = 'ep F(eta1,eta2,c)'
+    function = 'F+ep*3*eta1^2-ep*2*eta1^3+ep*3*eta2^2-ep*2*eta2^3'
     enable_jit = true
     derivative_order = 2
   [../]
 []
 
 [Functions]
-  [eta_txt]
+  [eta1_txt]
     type = PiecewiseMultilinear
-    data_file = Data/etas_
+    data_file = Data/eta1_
+  []
+  [eta2_txt]
+    type = PiecewiseMultilinear
+    data_file = Data/eta2_
   []
   [c_txt]
     type = PiecewiseMultilinear
@@ -152,11 +185,11 @@
   nl_abs_tol = 1.0e-6
 
   start_time = 0.0
-  end_time   = 5
+  end_time   =
 
   [./TimeStepper]
     type = SolutionTimeAdaptiveDT
-    dt = 0.002
+    dt =
   [../]
 []
 

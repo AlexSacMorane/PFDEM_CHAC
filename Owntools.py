@@ -16,6 +16,7 @@ This tools can be : - a little function
 import os
 from pathlib import Path
 import numpy as np
+import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------------------
 
@@ -42,12 +43,16 @@ def Create_i(dict_algorithm,dict_sample,dict_material):
       line = line[:-1] + ' ' + str(min(dict_sample['y_L']))+'\n'
     elif j == 10:
       line = line[:-1] + ' ' + str(max(dict_sample['y_L']))+'\n'
-    elif j == 83:
+    elif j == 112:
       line = line[:-1] + "'"+str(dict_material['M'])+' '+str(dict_material['kappa_c'])+' '+str(dict_material['M'])+' '+str(dict_material['kappa_eta'])+"'\n"
-    elif j == 97:
+    elif j == 126:
       line = line[:-1] + ' ' + str(dict_material['Energy_barrier'])+"'\n"
-    elif j == 117 or j == 121 or j == 125:
-      line = line[:-1] + str(dict_algorithm['i_PFDEM']) + '.txt'
+    elif j == 146 or j == 150 or j == 154 or j == 158:
+      line = line[:-1] + str(dict_algorithm['i_PFDEM']) + '.txt\n'
+    elif j == 188:
+      line = line[:-1] + str(dict_algorithm['dt_PF']*dict_algorithm['n_t_PF']) +'\n'
+    elif j == 192:
+      line = line[:-1] + str(dict_algorithm['dt_PF']) +'\n'
     file_to_write.write(line)
 
   file_to_write.close()
@@ -86,3 +91,22 @@ def Sort_Files(dict_algorithm):
      return index_to_str(j-1)
 
 #-------------------------------------------------------------------------------
+
+def Plot_config(dict_sample):
+
+    #look for the name of the new plot
+    template_name = 'Debug/Configuration_'
+    j = 0
+    plotpath = Path(template_name+str(j)+'.png')
+    while plotpath.exists():
+        j = j + 1
+        plotpath = Path(template_name+str(j)+'.png')
+    name = template_name+str(j)+'.png'
+
+    #plot
+    plt.figure(1,figsize=(16,9))
+    for i in range(len(dict_sample['L_g'])):
+        plt.plot(dict_sample['L_g'][i].l_border_x,dict_sample['L_g'][i].l_border_y)
+    plt.axis('equal')
+    plt.savefig(name)
+    plt.close(1)

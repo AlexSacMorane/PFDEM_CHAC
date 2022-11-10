@@ -55,8 +55,8 @@ def All_parameters():
     n_t_PFDEM = 1 #number of cycle PF-DEM
 
     #Time step for phase field
-    dt_PF = 0.01
-    n_t_PF = 100
+    dt_PF = 0.015
+    n_t_PF = 65
 
     cut_etai = 0.1 #????
 
@@ -116,7 +116,7 @@ def All_parameters():
 
 #-------------------------------------------------------------------------------
 
-def Add_2grains(dict_sample,dict_material,dict_sollicitation):
+def Add_2grains(dict_sample,dict_material):
 
     #grain 1
     radius = 10
@@ -126,7 +126,7 @@ def Add_2grains(dict_sample,dict_material,dict_sollicitation):
     #grain 2
     radius = 10
     center = np.array([np.mean(dict_sample['x_L'])+radius,np.mean(dict_sample['y_L'])])
-    grain_2 = Grain.Grain(1,radius,center,dict_material,dict_sample)
+    grain_2 = Grain.Grain(2,radius,center,dict_material,dict_sample)
 
     #add element in dict
     dict_sample['L_g'] = [grain_1, grain_2]

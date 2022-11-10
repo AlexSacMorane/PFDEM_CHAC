@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on 10/01/2021
+@author: Alexandre Sac--Morane
+alexandre.sac-morane@uclouvain.be
 
-@author: alsac
+This is the main file.
 """
 
 #-------------------------------------------------------------------------------
@@ -19,7 +20,6 @@ import pickle
 #Own functions and classes
 import Grain
 import Owntools
-import PF
 import User
 
 #-------------------------------------------------------------------------------
@@ -45,9 +45,11 @@ os.mkdir('Debug')
 
 #general parameters
 dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
+if not Path('../'+dict_algorithm['foldername']).exists():
+    os.mkdir('../'+dict_algorithm['foldername'])
 
 #create the two grains
-User.Add_2grains(dict_sample,dict_material,dict_sollicitation)
+User.Add_2grains(dict_sample,dict_material)
 
 #plot
 Owntools.Plot_config(dict_sample)
@@ -69,9 +71,9 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     Owntools.Plot_config(dict_sample)
 
     #write data
-    PF.Write_eta_txt(dict_algorithm, dict_sample)
-    PF.Write_c_txt(dict_algorithm, dict_sample)
-    PF.Write_ep_txt(dict_algorithm, dict_sample)
+    Owntools.Write_eta_txt(dict_algorithm, dict_sample)
+    Owntools.Write_c_txt(dict_algorithm, dict_sample)
+    Owntools.Write_ep_txt(dict_algorithm, dict_sample)
 
     #create i
     Owntools.Create_i(dict_algorithm,dict_sample,dict_material)
@@ -81,63 +83,15 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     #sorting files
     j_str = Owntools.Sort_Files(dict_algorithm)
 
-    raise ValueError('Stop !')
-
-    #geometric_study
+    for grain in dict_sample['L_g']:
+        grain.PFtoDEM_Multi('Output/'+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str,dict_algorithm,dict_sample)
+        grain.geometric_study(dict_sample)
 
     #plot
     Owntools.Plot_config(dict_sample)
-
 
 #-------------------------------------------------------------------------------
 #Main
 #-------------------------------------------------------------------------------
 
-
-L_c_M = []
-L_L_etai_M_g = []
-j = 0
-j_str = index_to_str(j)
-folderpath = Path('Output/'+namefile+'_other_'+j_str+'.pvtu')
-while folderpath.exists():
-    L_etai_M_g, c_M = PFtoDEM_Multi('Output/'+namefile+'_other_'+j_str,x_L,y_L,L_g,np_proc)
-    L_L_etai_M_g.append(L_etai_M_g)
-    L_c_M.append(c_M)
-    j = j + 1
-    j_str = index_to_str(j)
-    folderpath = Path('Output/'+namefile+'_other_'+j_str+'.pvtu')
-
-for i in range(len(L_g)):
-    before_sum = 0
-    after_sum = 0
-    for l in range(len(y_L)):
-        for c in range(len(x_L)):
-            before_sum = before_sum + max(L_g[i].etai_M[l][c],0)
-            after_sum = after_sum + max(L_etai_M_g[i][l][c],0)
-    print('eta',i+1,':',before_sum,'/',after_sum)
-
-outfile = open('save','wb')
-dict = {}
-dict['L_c_M'] = L_c_M
-dict['L_L_etai_M_g'] = L_L_etai_M_g
-dict['x_L'] = x_L
-dict['y_L'] = y_L
-pickle.dump(dict,outfile)
-outfile.close()
-
-
-before_sum = 0
-after_sum = 0
-for l in range(len(y_L)):
-    for c in range(len(x_L)):
-        before_sum = before_sum + max(L_g[0].etai_M[l][c],0) + max(L_g[1].etai_M[l][c],0)
-        after_sum = after_sum + c_M[l][c]
-print('c :',before_sum,'/',after_sum)
-
-#-------------------------------------------------------------------------------
-#Save
-#-------------------------------------------------------------------------------
-
-if SaveData:
-
-    shutil.copytree('../Test_2G_Box_CH_AC_EL','../Data_2G_Box_CH_AC_EL/'+name_folder)
+raise ValueError('Stop !')

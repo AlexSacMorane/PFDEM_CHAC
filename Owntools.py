@@ -16,6 +16,7 @@ This tools can be : - a little function
 import os
 from pathlib import Path
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------------------
@@ -79,14 +80,14 @@ def Sort_Files(dict_algorithm):
      os.rename(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'.i','Input/'+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'.i')
      j = 0
      j_str = index_to_str(j)
-     folderpath = Path(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu')
-     while folderpath.exists():
+     filepath = Path(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu')
+     while filepath.exists():
          for i_proc in range(dict_algorithm['np_proc']):
             os.rename(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'_'+str(i_proc)+'.vtu','Output/'+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'_'+str(i_proc)+'.vtu')
          os.rename(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu','Output/'+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu')
          j = j + 1
          j_str = index_to_str(j)
-         folderpath = Path(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu')
+         filepath = Path(dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'_other_'+j_str+'.pvtu')
 
      return index_to_str(j-1)
 
@@ -110,3 +111,122 @@ def Plot_config(dict_sample):
     plt.axis('equal')
     plt.savefig(name)
     plt.close(1)
+
+#-------------------------------------------------------------------------------
+
+def Cosine_Profile(R,r,w):
+  #r is the absolute value of the distance to the current point from the center
+  if r<R-w/2:
+    return 1
+  elif r>R+w/2:
+    return 0
+  else :
+    return 0.5*(1 + np.cos(math.pi*(r-R+w/2)/w))
+
+#-------------------------------------------------------------------------------
+
+def Write_eta_txt(dict_algorithm, dict_sample):
+
+    grain1 = dict_sample['L_g'][0]
+    grain2 = dict_sample['L_g'][1]
+
+    file_to_write_1 = open('Data/eta1_'+str(dict_algorithm['i_PFDEM'])+'.txt','w')
+    file_to_write_2 = open('Data/eta2_'+str(dict_algorithm['i_PFDEM'])+'.txt','w')
+    file_to_write_1.write('AXIS X\n')
+    file_to_write_2.write('AXIS X\n')
+    line = ''
+    for x in dict_sample['x_L']:
+        line = line + str(x)+ ' '
+    line = line + '\n'
+    file_to_write_1.write(line)
+    file_to_write_2.write(line)
+
+    file_to_write_1.write('AXIS Y\n')
+    file_to_write_2.write('AXIS Y\n')
+    line = ''
+    for y in dict_sample['y_L']:
+        line = line + str(y)+ ' '
+    line = line + '\n'
+    file_to_write_1.write(line)
+    file_to_write_2.write(line)
+
+    file_to_write_1.write('DATA\n')
+    file_to_write_2.write('DATA\n')
+    for l in range(len(dict_sample['y_L'])):
+        for c in range(len(dict_sample['x_L'])):
+
+            #grain 1
+            if grain1.etai_M[-1-l][c] > dict_algorithm['cut_etai']:
+                file_to_write_1.write(str(grain1.etai_M[-1-l][c])+'\n')
+            else :
+                if grain2.etai_M[-1-l][c] > dict_algorithm['cut_etai'] :
+                    file_to_write_1.write(str(-grain2.etai_M[-1-l][c])+'\n')
+                else :
+                    file_to_write_1.write(str('0\n'))
+
+            #grain 2
+            if grain2.etai_M[-1-l][c] > dict_algorithm['cut_etai']:
+                file_to_write_2.write(str(grain2.etai_M[-1-l][c])+'\n')
+            else :
+                if grain1.etai_M[-1-l][c] > dict_algorithm['cut_etai'] :
+                    file_to_write_2.write(str(-grain1.etai_M[-1-l][c])+'\n')
+                else :
+                    file_to_write_2.write(str('0\n'))
+
+    file_to_write_1.close()
+    file_to_write_2.close()
+
+#-------------------------------------------------------------------------------
+
+def Write_c_txt(dict_algorithm, dict_sample):
+
+    file_to_write = open('Data/c_'+str(dict_algorithm['i_PFDEM'])+'.txt','w')
+    file_to_write.write('AXIS X\n')
+    line = ''
+    for x in dict_sample['x_L']:
+        line = line + str(x)+ ' '
+    line = line + '\n'
+    file_to_write.write(line)
+
+    file_to_write.write('AXIS Y\n')
+    line = ''
+    for y in dict_sample['y_L']:
+        line = line + str(y)+ ' '
+    line = line + '\n'
+    file_to_write.write(line)
+
+    file_to_write.write('DATA\n')
+    for l in range(len(dict_sample['y_L'])):
+        for c in range(len(dict_sample['x_L'])):
+            sum_eta = 0
+            for grain in dict_sample['L_g'] :
+                sum_eta = sum_eta + max(grain.etai_M[-1-l][c],0)
+            file_to_write.write(str(sum_eta)+'\n')
+
+    file_to_write.close()
+
+#-------------------------------------------------------------------------------
+
+def Write_ep_txt(dict_algorithm, dict_sample):
+
+    file_to_write = open('Data/ep_'+str(dict_algorithm['i_PFDEM'])+'.txt','w')
+    file_to_write.write('AXIS X\n')
+    line = ''
+    for x in dict_sample['x_L']:
+        line = line + str(x)+ ' '
+    line = line + '\n'
+    file_to_write.write(line)
+
+    file_to_write.write('AXIS Y\n')
+    line = ''
+    for y in dict_sample['y_L']:
+        line = line + str(y)+ ' '
+    line = line + '\n'
+    file_to_write.write(line)
+
+    file_to_write.write('DATA\n')
+    for l in range(len(dict_sample['y_L'])):
+        for c in range(len(dict_sample['x_L'])):
+            file_to_write.write(str(0.1*min(dict_sample['L_g'][0].etai_M[-1-l][c],dict_sample['L_g'][1].etai_M[-1-l][c]))+'\n')
+
+    file_to_write.close()

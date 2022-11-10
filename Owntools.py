@@ -13,11 +13,12 @@ This tools can be : - a little function
 #Librairy
 #-------------------------------------------------------------------------------
 
-import os
 from pathlib import Path
 import numpy as np
-import math
 import matplotlib.pyplot as plt
+import os
+import math
+import pickle
 
 #-------------------------------------------------------------------------------
 
@@ -231,3 +232,32 @@ def Write_ep_txt(dict_algorithm, dict_sample):
             file_to_write.write(str(0.1*min(dict_sample['L_g'][0].etai_M[-1-l][c],dict_sample['L_g'][1].etai_M[-1-l][c]))+'\n')
 
     file_to_write.close()
+
+#-------------------------------------------------------------------------------
+
+def save_dicts_tempo(dict_algorithm, dict_material, dict_sample, dict_sollicitation):
+    #save dictionnaries during PFDEM interations
+
+    outfile = open('../'+dict_algorithm['foldername']+'/'+dict_algorithm['namefile']+'_save_tempo','wb')
+    dict_save = {}
+    dict_save['algorithm'] = dict_algorithm
+    dict_save['material'] = dict_material
+    dict_save['sample'] = dict_sample
+    dict_save['sollicitation'] = dict_sollicitation
+    pickle.dump(dict_save,outfile)
+    outfile.close()
+
+#-------------------------------------------------------------------------------
+
+def save_dicts_final(dict_algorithm, dict_material, dict_sample, dict_sollicitation):
+    #save dictionnaries during PFDEM interations
+
+    os.remove('../'+dict_algorithm['foldername']+'/'+dict_algorithm['namefile']+'_save_tempo')
+    outfile = open('../'+dict_algorithm['foldername']+'/'+dict_algorithm['namefile']+'_save','wb')
+    dict_save = {}
+    dict_save['algorithm'] = dict_algorithm
+    dict_save['material'] = dict_material
+    dict_save['sample'] = dict_sample
+    dict_save['sollicitation'] = dict_sollicitation
+    pickle.dump(dict_save,outfile)
+    outfile.close()

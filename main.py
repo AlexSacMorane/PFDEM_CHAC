@@ -50,8 +50,11 @@ simulation_report.tic_tempo(datetime.now())
 
 #general parameters
 dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
-if not Path('../'+dict_algorithm['foldername']).exists():
-    os.mkdir('../'+dict_algorithm['foldername'])
+if dict_algorithm['SaveData']:
+    if not Path('../'+dict_algorithm['foldername']).exists():
+        os.mkdir('../'+dict_algorithm['foldername'])
+    #tempo save of the user file
+    shutil.copy('User.py','../'+dict_algorithm['foldername']+'/User_'+dict_algorithm['namefile']+'_tempo.txt')
 
 #create the two grains
 User.Add_2grains(dict_sample,dict_material)
@@ -106,10 +109,27 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     #plot
     Owntools.Plot_config(dict_sample)
 
+    #tempo save
+    if dict_algorithm['SaveData']:
+        Owntools.save_dicts_tempo(dict_algorithm, dict_material, dict_sample, dict_sollicitation)
+        shutil.copy('Debug/Report.txt','../'+dict_algorithm['foldername']+'/Report_'+dict_algorithm['namefile']+'_tempo.txt')
+
     simulation_report.tac_tempo(datetime.now(),f"Iteration {dict_algorithm['i_PFDEM']}: from pf to dem")
 
 #-------------------------------------------------------------------------------
 #postprocess
 #-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+#close simulation
+#-------------------------------------------------------------------------------
+
+#final save
+if dict_algorithm['SaveData']:
+    Owntools.save_dicts_tempo(dict_algorithm, dict_material, dict_sample, dict_sollicitation)
+    name_actual_folder = os.path.dirname(os.path.realpath(__file__))
+    shutil.copytree(name_actual_folder, '../'+dict_algorithm['foldername']+'/'+dict_algorithm['namefile'])
+    os.remove('../'+dict_algorithm['foldername']+'/User_'+dict_algorithm['namefile']+'_tempo.txt')
+    os.remove('../'+dict_algorithm['foldername']+'/Report_'+dict_algorithm['namefile']+'_tempo.txt')
 
 simulation_report.end(datetime.now())

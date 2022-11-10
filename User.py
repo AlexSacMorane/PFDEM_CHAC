@@ -61,7 +61,7 @@ def All_parameters():
     cut_etai = 0.5 #????
 
     SaveData = True #Save data or not
-    foldername = 'Data_2G_Box_CH_AC_EL' #name of the folder where data are saved
+    foldername = 'Data_2G_CHAC' #name of the folder where data are saved
     if SaveData :
         i_run = 1
         folderpath = Path('../'+foldername+'/'+template+'_'+str(i_run))

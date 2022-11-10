@@ -4,13 +4,10 @@ This documentation explains what is inside of the file User.py. Hence, all varia
 
 ## Units used
 
-The lenght is in µm.
+The lenght is without dimension (initial radius of the grain is 1).
 
 The time is in second.
 
-The force is in µN.
-
-The  mass is in kg.
 
 ## dict_algorithm
 

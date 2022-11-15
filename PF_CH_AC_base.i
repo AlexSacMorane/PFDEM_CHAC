@@ -123,7 +123,7 @@
   f_name = F
   args = 'eta1 eta2 c'
   constant_names = 'cross_term h'
-  constant_expressions = '1
+  constant_expressions = '4
   function = 'h*((-1-eta1)^2*eta1^2*(1-eta1)^2+(-1-eta2)^2*eta2^2*(1-eta2)^2+c^2*(1-c)^2+cross_term*(((-1-eta1)^2*(1-eta1)^2)*c^2+(eta1^2)*(1-c)^2+((-1-eta2)^2*(1-eta2)^2)*c^2+(eta2^2)*(1-c)^2))'
   enable_jit = true
   derivative_order = 2

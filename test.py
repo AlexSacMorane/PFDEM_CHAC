@@ -209,13 +209,31 @@ class TestGrain(unittest.TestCase):
 
     #---------------------------------------------------------------------------
 
-    def test_move_grain(self):
+    def test_move_grain_rebuild(self):
         #Acquire data
         dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
         #Create one grain
         grain = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
         #try to move the grain
-        grain.move_grain(np.array([5,0]),dict_material,dict_sample)
+        grain.move_grain_rebuild(np.array([5,0]),dict_material,dict_sample)
+        #check if the center computed is near the analytical one
+        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])])-grain.center)==0,'The grain has not been well moved!')
+        #Study the geometric of the grain
+        grain.geometric_study(dict_sample)
+        #define margine of the new center (the study is done with a Monte Carlo method, some noise can be introduced)
+        margin_center = 0.03*10 #10 is the radius see line upper
+        #check if the center computed is near the analytical one
+        self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])])-grain.center)<margin_center,'The displacement of the grain seems false after the etai_M rebuild (because of the Monte Carlo Method try to rerun or increase the margin)...')
+
+    #---------------------------------------------------------------------------
+
+    def test_move_grain_interpolation(self):
+        #Acquire data
+        dict_algorithm, dict_material, dict_sample, dict_sollicitation = User.All_parameters()
+        #Create one grain
+        grain = Grain.Grain(0,10,np.array([np.mean(dict_sample['x_L']),np.mean(dict_sample['y_L'])]),dict_material,dict_sample)
+        #try to move the grain
+        grain.move_grain_interpolation(np.array([5,0]),dict_material,dict_sample)
         #check if the center computed is near the analytical one
         self.assertTrue(np.linalg.norm(np.array([np.mean(dict_sample['x_L'])+5,np.mean(dict_sample['y_L'])])-grain.center)==0,'The grain has not been well moved!')
         #Study the geometric of the grain

@@ -93,6 +93,14 @@ while not User.Criteria_StopSimulation(dict_algorithm):
     simulation_report.tac_tempo(datetime.now(),f"Iteration {dict_algorithm['i_PFDEM']}: preparation of the pf simulation")
     simulation_report.tic_tempo(datetime.now())
 
+    #postprocess
+    for grain in dict_sample['L_g']:
+        sum_eta = 0
+        for l in range(len(dict_sample['y_L'])):
+            for c in range(len(dict_sample['x_L'])):
+                sum_eta = sum_eta + grain.etai_M[l][c]
+        simulation_report.write(f"Grain {grain.id} -> sum of etai = {sum_eta}\n")
+
     #run
     os.system('mpiexec -n '+str(dict_algorithm['np_proc'])+' ~/projects/moose/modules/combined/combined-opt -i '+dict_algorithm['namefile']+'_'+str(dict_algorithm['i_PFDEM'])+'.i')
 
@@ -108,6 +116,14 @@ while not User.Criteria_StopSimulation(dict_algorithm):
 
     #plot
     Owntools.Plot_config(dict_sample)
+
+    #postprocess
+    for grain in dict_sample['L_g']:
+        sum_eta = 0
+        for l in range(len(dict_sample['y_L'])):
+            for c in range(len(dict_sample['x_L'])):
+                sum_eta = sum_eta + grain.etai_M[l][c]
+        simulation_report.write(f"Grain {grain.id} -> sum of etai = {sum_eta}\n")
 
     #tempo save
     if dict_algorithm['SaveData']:

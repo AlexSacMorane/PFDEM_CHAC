@@ -373,7 +373,7 @@ class Grain:
 
     #---------------------------------------------------------------------------
 
-    def move_grain(self,displacement,dict_material,dict_sample):
+    def move_grain_rebuild(self,displacement,dict_material,dict_sample):
 
         self.center = self.center + displacement
         for i in range(len(self.l_border)):
@@ -381,6 +381,48 @@ class Grain:
             self.l_border_x[i] = self.l_border_x[i] + displacement[0]
             self.l_border_y[i] = self.l_border_y[i] + displacement[1]
         self.build_etai_M(dict_material,dict_sample)
+
+    #---------------------------------------------------------------------------
+
+    def move_grain_interpolation(self,displacement,dict_material,dict_sample):
+
+        self.center = self.center + displacement
+        for i in range(len(self.l_border)):
+            self.l_border[i] = self.l_border[i] + displacement
+            self.l_border_x[i] = self.l_border_x[i] + displacement[0]
+            self.l_border_y[i] = self.l_border_y[i] + displacement[1]
+
+        #displacement over x
+        dx = dict_sample['x_L'][1]-dict_sample['x_L'][0]
+        n_dx_disp_x = int(abs(displacement[0])//dx)
+        disp_x_remainder = abs(displacement[0])%dx
+        etai_M_old = self.etai_M.copy()
+
+        if np.sign(displacement[0]) > 0 : # +x direction
+            #dx*n_dx_disp_x translation
+            if n_dx_disp_x > 0:
+                for l in range(len(dict_sample['y_L'])):
+                    self.etai_M[l][:n_dx_disp_x] = 0 #no information to translate so put equal to 0
+                    self.etai_M[l][n_dx_disp_x:] = etai_M_old[l][:-n_dx_disp_x]
+            #disp_x_remainder translation
+            etai_M_old = self.etai_M.copy()
+            for l in range(len(dict_sample['y_L'])):
+                for c in range(1,len(dict_sample['x_L'])):
+                    self.etai_M[l][c] = (etai_M_old[l][c]*(dx-disp_x_remainder) + etai_M_old[l][c-1]*disp_x_remainder)/dx
+                self.etai_M[l][0] = 0 #no information to translate so put equal to 0
+
+        else : # -x direction
+            #dx*n_dx_disp_x translation
+            if n_dx_disp_x > 0:
+                for l in range(len(dict_sample['y_L'])):
+                    self.etai_M[l][-n_dx_disp_x:] = 0 #no information to translate so put equal to 0
+                    self.etai_M[l][:-n_dx_disp_x] = etai_M_old[l][n_dx_disp_x:]
+            #disp_x_remainder translation
+            etai_M_old = self.etai_M.copy()
+            for l in range(len(dict_sample['y_L'])):
+                for c in range(len(dict_sample['x_L'])-1):
+                    self.etai_M[l][c] = (etai_M_old[l][c]*(dx-disp_x_remainder) + etai_M_old[l][c+1]*disp_x_remainder)/dx
+                self.etai_M[l][0] = 0 #no information to translate so put equal to 0
 
 #-------------------------------------------------------------------------------
 #Functions
@@ -407,5 +449,5 @@ def Apply_overlap_target(dict_material,dict_sample,dict_sollicitation):
     delta_overlap = dict_sollicitation['overlap_target'] - dict_sample['overlap']
 
     #move grains to apply target overlap
-    dict_sample['L_g'][0].move_grain(np.array([ delta_overlap/2,0]),dict_material,dict_sample)
-    dict_sample['L_g'][1].move_grain(np.array([-delta_overlap/2,0]),dict_material,dict_sample)
+    dict_sample['L_g'][0].move_grain_interpolation(np.array([ delta_overlap/2,0]),dict_material,dict_sample)
+    dict_sample['L_g'][1].move_grain_interpolation(np.array([-delta_overlap/2,0]),dict_material,dict_sample)
